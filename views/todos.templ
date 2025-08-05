@@ -1,0 +1,55 @@
+package views
+
+import (
+	"awesome-go/internal/service"
+	"fmt"
+)
+
+templ Index(todos []service.Todo) {
+	@Base() {
+		<h1>Tasks</h1>
+		@TodoList(todos)
+		@TodoForm()
+	}
+}
+
+templ TodoList(todos []service.Todo) {
+	<ul id="tasks">
+		for _, todo := range todos {
+			@TodoItem(todo)
+		}
+	</ul>
+}
+
+templ TodoItem(todo service.Todo) {
+	<li>
+		{ todo.Title } - { todo.Status }
+		<button
+			hx-delete={ fmt.Sprintf("/todos/%d", todo.ID) }
+			hx-target="closest li"
+			hx-swap="outerHTML"
+		>
+			Delete
+		</button>
+	</li>
+}
+
+templ TodoForm() {
+	<form hx-post="/todos" hx-target="#tasks" hx-swap="beforeend" hx-on:htmx:after-request="this.reset()">
+		<div>
+			<input name="title"/>
+		</div>
+		<div>
+			<select name="status">
+				<option disabled>Please select a status</option>
+				<option value="open">Open</option>
+				<option value="in_progress">In Progress</option>
+				<option value="completed">Completed</option>
+				<option value="closed">Closed</option>
+			</select>
+		</div>
+		<div>
+			<button type="submit">Save</button>
+		</div>
+	</form>
+}

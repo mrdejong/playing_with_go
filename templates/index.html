@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Hello world</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js"></script>
+  </head>
+  <body>
+    <h1>Tasks</h1>
+    <ul id="tasks">
+      {{range .todos}}
+      <li>
+        {{.Title}} - {{.Status}}
+        <button
+          hx-delete="/todos/{{.ID}}"
+          hx-target="closest li"
+          hx-swap="outerHTML"
+        >
+          Delete
+        </button>
+      </li>
+      {{end}}
+    </ul>
+
+    <form hx-post="/todos" hx-target="#tasks" hx-swap="beforeend">
+      <div>
+        <input name="title" />
+      </div>
+      <div>
+        <select name="status">
+          <option disabled>Please select a status</option>
+          <option value="open">Open</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
+      <div>
+        <button type="submit">Save</button>
+      </div>
+    </form>
+  </body>
+</html>
