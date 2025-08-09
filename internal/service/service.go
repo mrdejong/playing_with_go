@@ -19,7 +19,7 @@ func New() *Service {
 		panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Todo{})
+	db.AutoMigrate(&models.User{}, &models.Todo{}, &models.Session{})
 
 	return &Service{
 		db: db,
