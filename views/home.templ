@@ -1,0 +1,34 @@
+package views
+
+import (
+	"awesome-go/internal/models"
+	"awesome-go/internal/types"
+	"context"
+)
+
+func User(ctx context.Context) models.User {
+	return ctx.Value(types.UserKey).(models.User)
+}
+
+func LoggedIn(ctx context.Context) bool {
+	return User(ctx).ID > 0
+}
+
+templ HomeView() {
+	@Base() {
+		<h1>Hello to home</h1>
+		if LoggedIn(ctx) {
+			<div>
+				<b>Name: </b><span>{ User(ctx).Name }</span>
+			</div>
+			<div>
+				<b>Email: </b><span>{ User(ctx).Email }</span>
+			</div>
+			<div>
+				<a href="/todos">Todos</a>
+			</div>
+		} else {
+			<a href="/login">Login</a>
+		}
+	}
+}
