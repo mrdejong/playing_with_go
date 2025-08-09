@@ -1,0 +1,7 @@
+{
+  "componentsDir": "views/components",
+  "utilsDir": "internal/utils",
+  "moduleName": "awesome-go",
+  "jsDir": "public/js",
+  "jsPublicPath": "/static/js"
+}
