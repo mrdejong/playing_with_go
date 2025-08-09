@@ -2,20 +2,28 @@
 package service
 
 import (
+	"awesome-go/internal/models"
 	"context"
 
-	"github.com/pocketbase/pocketbase"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type Service struct {
-	app *pocketbase.PocketBase
+	db *gorm.DB
 }
 
-func New(app *pocketbase.PocketBase) *Service {
-	service := &Service{
-		app: app,
+func New() *Service {
+	db, err := gorm.Open(sqlite.Open("./app.db"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
 	}
-	return service
+
+	db.AutoMigrate(&models.User{}, &models.Todo{})
+
+	return &Service{
+		db: db,
+	}
 }
 
 func (s *Service) context() context.Context {

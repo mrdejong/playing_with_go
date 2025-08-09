@@ -1,11 +1,11 @@
 package views
 
 import (
-	"awesome-go/internal/service"
+	"awesome-go/internal/models"
 	"fmt"
 )
 
-templ Index(todos []service.Todo) {
+templ Index(todos []models.Todo) {
 	@Base() {
 		<h1>Tasks</h1>
 		@TodoList(todos)
@@ -13,7 +13,7 @@ templ Index(todos []service.Todo) {
 	}
 }
 
-templ TodoList(todos []service.Todo) {
+templ TodoList(todos []models.Todo) {
 	<ul id="tasks">
 		for _, todo := range todos {
 			@TodoItem(todo)
@@ -21,11 +21,11 @@ templ TodoList(todos []service.Todo) {
 	</ul>
 }
 
-templ TodoItem(todo service.Todo) {
+templ TodoItem(todo models.Todo) {
 	<li>
 		{ todo.Title } - { todo.Status }
 		<button
-			hx-delete={ fmt.Sprintf("/todos/%d", todo.ID) }
+			hx-delete={ fmt.Sprintf("/todos/%x", todo.ID) }
 			hx-target="closest li"
 			hx-swap="outerHTML"
 		>
@@ -43,6 +43,7 @@ templ TodoForm() {
 			<select name="status">
 				<option disabled>Please select a status</option>
 				<option value="open">Open</option>
+				<option value="pending">Pending</option>
 				<option value="in_progress">In Progress</option>
 				<option value="completed">Completed</option>
 				<option value="closed">Closed</option>

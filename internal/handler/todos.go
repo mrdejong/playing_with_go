@@ -1,33 +1,53 @@
 package handler
 
 import (
+	"awesome-go/internal/models"
 	"awesome-go/views"
-	"net/http"
+	"log"
+	"strconv"
 
-	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/tools/router"
+	"github.com/gofiber/fiber/v2"
 )
 
-func (h *Handler) initializeTodos(router *router.RouterGroup[*core.RequestEvent]) {
-	router.GET("", h.index)
-	router.POST("", h.create)
-	router.DELETE("/:id", h.delete)
+type NewTodo struct {
+	Title  string            `form:"title"`
+	Status models.TodoStatus `form:"status"`
 }
 
-func (h *Handler) index(e *core.RequestEvent) error {
+func (h *Handler) initializeTodos(router fiber.Router) {
+	router.Get("", h.index)
+	router.Post("todos", h.create)
+	router.Delete("todos/:id", h.delete)
+}
+
+func (h *Handler) index(c *fiber.Ctx) error {
 	todos := h.service.ListTodos()
-	return h.render(e, 200, views.Index(todos))
+	return h.render(c, 200, views.Index(todos))
 }
 
-func (h *Handler) create(e *core.RequestEvent) error {
-	title := e.Request.PostFormValue("title")
-	status := e.Request.PostFormValue("status")
-	todo, _ := h.service.CreateTodo(title, status)
-	return h.render(e, 200, views.TodoItem(todo))
+func (h *Handler) create(c *fiber.Ctx) error {
+	var newTodo NewTodo
+	err := c.BodyParser(&newTodo)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	todo, err := h.service.CreateTodo(newTodo.Title, newTodo.Status)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	return h.render(c, 200, views.TodoItem(todo))
 }
 
-func (h *Handler) delete(e *core.RequestEvent) error {
-	id := e.Request.PathValue("id")
-	h.service.DeleteTodo(id)
-	return e.String(http.StatusOK, "ok")
+func (h *Handler) delete(c *fiber.Ctx) error {
+	id := c.Params("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	h.service.DeleteTodo(idInt)
+	return c.SendString("ok")
 }

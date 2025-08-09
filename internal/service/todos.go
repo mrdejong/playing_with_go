@@ -1,48 +1,31 @@
 package service
 
 import (
-	"github.com/pocketbase/pocketbase/core"
+	"awesome-go/internal/models"
+
+	"gorm.io/gorm"
 )
 
-type Todo struct {
-	ID     string `json:"id"`
-	Title  string `json:"title"`
-	Status string `json:"status"`
-}
+const (
+	Open       models.TodoStatus = "open"
+	Pending    models.TodoStatus = "pending"
+	InProgress models.TodoStatus = "in_progress"
+	Completed  models.TodoStatus = "completed"
+	Closed     models.TodoStatus = "closed"
+)
 
-func (s *Service) CreateTodo(title, status string) (Todo, error) {
-	todo := Todo{Title: title, Status: status}
-	collection, err := s.app.FindCollectionByNameOrId("todos")
-	if err != nil {
-		return Todo{}, err
-	}
-
-	record := core.NewRecord(collection)
-	record.Set("title", title)
-	record.Set("status", status)
-	err = s.app.Save(record)
-
+func (s *Service) CreateTodo(title string, status models.TodoStatus) (models.Todo, error) {
+	todo := models.Todo{Title: title, Status: status}
+	err := gorm.G[models.Todo](s.db).Create(s.context(), &todo)
 	return todo, err
 }
 
-func (s *Service) DeleteTodo(id string) error {
-	record, err := s.app.FindRecordById("todos", id)
-	if err != nil {
-		return err
-	}
-	return s.app.Delete(record)
+func (s *Service) DeleteTodo(id int) error {
+	_, err := gorm.G[models.Todo](s.db).Where("id = ?", id).Delete(s.context())
+	return err
 }
 
-func (s *Service) ListTodos() []Todo {
-	var todos []Todo
-	records, _ := s.app.FindAllRecords("todos")
-	for _, r := range records {
-		todos = append(todos, Todo{
-			ID:     r.Id,
-			Title:  r.GetString("title"),
-			Status: r.GetString("status"),
-		})
-	}
-
+func (s *Service) ListTodos() []models.Todo {
+	todos, _ := gorm.G[models.Todo](s.db).Find(s.context())
 	return todos
 }

@@ -9,11 +9,11 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"awesome-go/internal/service"
+	"awesome-go/internal/models"
 	"fmt"
 )
 
-func Index(todos []service.Todo) templ.Component {
+func Index(todos []models.Todo) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -72,7 +72,7 @@ func Index(todos []service.Todo) templ.Component {
 	})
 }
 
-func TodoList(todos []service.Todo) templ.Component {
+func TodoList(todos []models.Todo) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -111,7 +111,7 @@ func TodoList(todos []service.Todo) templ.Component {
 	})
 }
 
-func TodoItem(todo service.Todo) templ.Component {
+func TodoItem(todo models.Todo) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -163,7 +163,7 @@ func TodoItem(todo service.Todo) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/todos/%d", todo.ID))
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/todos/%x", todo.ID))
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/todos.templ`, Line: 28, Col: 48}
 		}
@@ -200,7 +200,7 @@ func TodoForm() templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<form hx-post=\"/todos\" hx-target=\"#tasks\" hx-swap=\"beforeend\" hx-on:htmx:after-request=\"this.reset()\"><div><input name=\"title\"></div><div><select name=\"status\"><option disabled>Please select a status</option> <option value=\"open\">Open</option> <option value=\"in_progress\">In Progress</option> <option value=\"completed\">Completed</option> <option value=\"closed\">Closed</option></select></div><div><button type=\"submit\">Save</button></div></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<form hx-post=\"/todos\" hx-target=\"#tasks\" hx-swap=\"beforeend\" hx-on:htmx:after-request=\"this.reset()\"><div><input name=\"title\"></div><div><select name=\"status\"><option disabled>Please select a status</option> <option value=\"open\">Open</option> <option value=\"pending\">Pending</option> <option value=\"in_progress\">In Progress</option> <option value=\"completed\">Completed</option> <option value=\"closed\">Closed</option></select></div><div><button type=\"submit\">Save</button></div></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

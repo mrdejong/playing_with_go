@@ -1,0 +1,74 @@
+package views
+
+import (
+	"awesome-go/internal/types"
+	"awesome-go/pkgs/validate"
+)
+
+templ FieldErr(errors validate.Errors) {
+	if len(errors) > 0 {
+		<ul>
+			for _, error := range errors {
+				<li>{ error }</li>
+			}
+		</ul>
+	}
+}
+
+templ RegistrationForm(fields types.UserForm) {
+	<form action="/register" method="post" novalidate>
+		<div>
+			<label for="name">Name:</label>
+			<input type="text" id="name" name="name" value={ fields.Name.Value }/>
+			@FieldErr(fields.Name.Errors)
+		</div>
+		<div>
+			<label for="email">Email:</label>
+			<input type="email" id="email" name="email" value={ fields.Email.Value }/>
+			@FieldErr(fields.Email.Errors)
+		</div>
+		<div>
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" value={ fields.Password.Value }/>
+			@FieldErr(fields.Password.Errors)
+		</div>
+		<button type="submit">Register</button>
+	</form>
+}
+
+templ RegisterUser(fields types.UserForm) {
+	@Base() {
+		<div>
+			<h2>Register User</h2>
+			@RegistrationForm(fields)
+		</div>
+	}
+}
+
+templ LoginForm(fields types.AuthForm, message string) {
+	<form action="/login" method="post" novalidate>
+		if message != "" {
+			<div class="text-red-700">{ message }</div>
+		}
+		<div>
+			<label for="email">Email:</label>
+			<input type="email" id="email" name="email" value={ fields.Email.Value }/>
+			@FieldErr(fields.Email.Errors)
+		</div>
+		<div>
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" value={ fields.Password.Value }/>
+			@FieldErr(fields.Password.Errors)
+		</div>
+		<button type="submit">Register</button>
+	</form>
+}
+
+templ LoginUser(fields types.AuthForm, message string) {
+	@Base() {
+		<div>
+			<h2>Login User</h2>
+			@LoginForm(fields, message)
+		</div>
+	}
+}

@@ -2,23 +2,25 @@ package main
 
 import (
 	"awesome-go/internal/handler"
+	"awesome-go/internal/service"
+	"awesome-go/pkgs/srv"
+	"fmt"
 	"log"
-
-	"github.com/pocketbase/pocketbase"
-	"github.com/pocketbase/pocketbase/core"
+	"reflect"
 )
 
 func main() {
-	app := pocketbase.New()
-	h := handler.New(nil)
+	v := reflect.ValueOf("GTE")
+	fmt.Printf("%v", v.Type())
 
-	app.OnServe().BindFunc(func(e *core.ServeEvent) error {
-		h.InitializeRoutes(e.Router)
+	app := srv.New()
 
-		return e.Next()
-	})
+	s := service.New()
+	h := handler.New(app, s)
 
-	if err := app.Start(); err != nil {
+	h.InitializeRoutes()
+
+	if err := app.Router.Listen(":3000"); err != nil {
 		log.Fatal(err)
 	}
 }
