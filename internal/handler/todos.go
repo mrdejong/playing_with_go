@@ -2,7 +2,9 @@ package handler
 
 import (
 	"awesome-go/internal/models"
+	"awesome-go/internal/types"
 	"awesome-go/views"
+	"fmt"
 	"log"
 	"strconv"
 
@@ -16,12 +18,14 @@ type NewTodo struct {
 
 func (h *Handler) initializeTodos(router fiber.Router) {
 	router.Get("", h.index)
-	router.Post("todos", h.create)
-	router.Delete("todos/:id", h.delete)
+	router.Post("", h.create)
+	router.Delete(":id", h.delete)
 }
 
 func (h *Handler) index(c *fiber.Ctx) error {
 	todos := h.service.ListTodos()
+	user := c.UserContext().Value(types.UserKey).(models.User)
+	fmt.Printf("User: %v", user)
 	return h.render(c, 200, views.Index(todos))
 }
 

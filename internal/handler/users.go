@@ -4,8 +4,10 @@ import (
 	"awesome-go/internal/types"
 	"awesome-go/views"
 	"net/http"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func (h *Handler) initializeUsers(router fiber.Router) {
@@ -29,7 +31,7 @@ func (h *Handler) postRegister(c *fiber.Ctx) error {
 	if err != nil {
 		return h.render(c, http.StatusUnprocessableEntity, views.RegisterUser(user))
 	}
-	return h.redirect(c, 201, "/login")
+	return h.redirect(c, "/login")
 }
 
 func (h *Handler) getLogin(c *fiber.Ctx) error {
@@ -42,10 +44,34 @@ func (h *Handler) postLogin(c *fiber.Ctx) error {
 		return h.render(c, http.StatusUnprocessableEntity, views.LoginUser(user, "Please correct the form"))
 	}
 
-	_, err := h.service.AuthenticateUser(user)
+	mUser, err := h.service.AuthenticateUser(user)
 	if err != nil {
 		return h.render(c, http.StatusUnprocessableEntity, views.LoginUser(user, "Invalid email/password provided, please correct it."))
 	}
 
-	return h.redirect(c, 201, "/")
+	session, err := h.service.CreateSession(mUser, string(c.Request().Header.UserAgent()), c.IP(), time.Now().Add(time.Hour*24*7))
+	if err != nil {
+		return h.render(c, http.StatusUnprocessableEntity, views.LoginUser(user, "Invalid email/password provided, please correct it."))
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":   session.ExpiresOn.Unix(),
+		"token": session.Token,
+	})
+	tokenString, err := token.SignedString([]byte("4E4bSGLxqMYcppapKkRQrhkaNga5pcnDfSy3QDbb"))
+	if err != nil {
+		return err
+	}
+
+	cookie := new(fiber.Cookie)
+	cookie.Name = "auth"
+	cookie.Value = tokenString
+	cookie.Expires = session.ExpiresOn
+	cookie.SameSite = "Lax"
+	cookie.HTTPOnly = true
+	cookie.Secure = true
+
+	c.Cookie(cookie)
+
+	return h.redirect(c, "/")
 }
