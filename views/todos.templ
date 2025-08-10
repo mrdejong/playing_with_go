@@ -124,16 +124,18 @@ templ TodoDrawer() {
 templ TodoForm() {
 	<form id="todo-form" hx-post="/todos" hx-target="#tasks" hx-swap="beforeend" class="space-y-3" hx-on:htmx:after-request="this.reset(); document.getElementById('todo-form-drawer').dispatchEvent(new Event('close'))">
 		@field.Field(field.Props{
-			Name:  "title",
-			Type:  input.TypeText,
-			Label: "Title",
-			Value: "",
+			Name:   "title",
+			Type:   input.TypeText,
+			Label:  "Title",
+			Value:  form.Title.Value,
+			Errors: form.Title.Errors,
 		})
 		@field.Field(field.Props{
 			Name:     "status",
 			IsSelect: true,
 			Label:    "Status",
-			Value:    "",
+			Value:    form.Status.Value,
+			Errors:   form.Status.Errors,
 			SelectValues: map[string]string{
 				"open":        "Open",
 				"pending":     "Pending",
