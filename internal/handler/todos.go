@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"awesome-go/internal/models"
+	"awesome-go/internal/types"
 	"awesome-go/views"
 	"log"
 	"strconv"
@@ -30,9 +30,10 @@ func (h *Handler) create(c *fiber.Ctx) error {
 	todo, err := h.service.CreateTodo(form)
 	if err != nil {
 		log.Fatal(err)
-		return err
+		return h.renderOOB(c, 200, "#todo-form", views.TodoForm(form))
 	}
 
+	h.closeDrawer(c)
 	return h.render(c, 200, views.TodoItem(todo))
 }
 
