@@ -65,6 +65,10 @@ func (h *Handler) redirect(c *fiber.Ctx, url string) error {
 	return c.Redirect(url)
 }
 
+func (h *Handler) closeDrawer(c *fiber.Ctx) {
+	c.Response().Header.Set("HX-Trigger-After-Settle", "close")
+}
+
 func (h *Handler) currentUser(c *fiber.Ctx) models.User {
 	return c.UserContext().Value(types.UserKey).(models.User)
 }
