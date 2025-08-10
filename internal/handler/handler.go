@@ -46,6 +46,16 @@ func (h *Handler) render(c *fiber.Ctx, status int, template templ.Component) err
 	return template.Render(ctx, c.Response().BodyWriter())
 }
 
+func (h *Handler) renderOOB(c *fiber.Ctx, status int, target string, template templ.Component) error {
+	c.Response().Header.SetStatusCode(status)
+	c.Response().Header.Set("Content-Type", "text/html; charset=utf-8")
+	c.Response().Header.Set("HX-Reswap", "outerHTML")
+	c.Response().Header.Set("HX-Retarget", target)
+
+	ctx := context.WithValue(context.Background(), types.UserKey, h.currentUser(c))
+	return template.Render(ctx, c.Response().BodyWriter())
+}
+
 func (h *Handler) redirect(c *fiber.Ctx, url string) error {
 	if len(c.Request().Header.Peek("HX-Request")) > 0 {
 		c.Response().Header.Add("HX-Redirect", url)
