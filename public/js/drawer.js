@@ -79,7 +79,7 @@
             backdrop.addEventListener("click", close);
             document.addEventListener("keydown", handleEsc);
             document.addEventListener("click", handleClickAway);
-            backdrop.addEventListener("close", close);
+            document.addEventListener("close", close);
         }
 
         // Close drawer
@@ -90,7 +90,7 @@
             backdrop.removeEventListener("click", close);
             document.removeEventListener("keydown", handleEsc);
             document.removeEventListener("click", handleClickAway);
-            backdrop.removeEventListener("close", close);
+            document.removeEventListener("close", close);
 
             // Hide after animation
             setTimeout(() => {
