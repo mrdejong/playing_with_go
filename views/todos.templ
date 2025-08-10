@@ -78,7 +78,7 @@ templ TodoItem(todo models.Todo) {
 			@button.Button(button.Props{
 				Variant:    button.VariantDestructive,
 				Size:       button.SizeSm,
-				Attributes: HXAttributes(fmt.Sprintf("/todos/%x", todo.ID), "closest tr", "delete"),
+				Attributes: HXAttributes(fmt.Sprintf("/todos/%v", todo.ID), "closest tr", "delete"),
 			}) {
 				Delete
 			}
