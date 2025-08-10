@@ -9,11 +9,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type NewTodo struct {
-	Title  string            `form:"title"`
-	Status models.TodoStatus `form:"status"`
-}
-
 func (h *Handler) initializeTodos(router fiber.Router) {
 	router.Get("", h.index)
 	router.Post("", h.create)
@@ -26,14 +21,13 @@ func (h *Handler) index(c *fiber.Ctx) error {
 }
 
 func (h *Handler) create(c *fiber.Ctx) error {
-	var newTodo NewTodo
-	err := c.BodyParser(&newTodo)
-	if err != nil {
-		log.Fatal(err)
-		return err
+	var form types.TodoForm
+	invalid := h.app.ParseFields(&form, c.FormValue)
+	if invalid {
+		return h.renderOOB(c, 200, "#todo-form", views.TodoForm(form))
 	}
 
-	todo, err := h.service.CreateTodo(newTodo.Title, newTodo.Status)
+	todo, err := h.service.CreateTodo(form)
 	if err != nil {
 		log.Fatal(err)
 		return err

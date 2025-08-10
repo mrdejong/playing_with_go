@@ -1,7 +1,9 @@
 // Package types
 package types
 
-import "awesome-go/pkgs/srv"
+import (
+	"awesome-go/pkgs/srv"
+)
 
 type key int
 
@@ -16,4 +18,9 @@ type UserForm struct {
 type AuthForm struct {
 	Email    srv.StringField `field:"email:required,email"`
 	Password srv.StringField `field:"password:required"`
+}
+
+type TodoForm struct {
+	Title  srv.StringField `field:"title:required"`
+	Status srv.StringField `field:"status:required"`
 }

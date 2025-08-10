@@ -2,6 +2,7 @@ package service
 
 import (
 	"awesome-go/internal/models"
+	"awesome-go/internal/types"
 
 	"gorm.io/gorm"
 )
@@ -14,8 +15,9 @@ const (
 	Closed     models.TodoStatus = "closed"
 )
 
-func (s *Service) CreateTodo(title string, status models.TodoStatus) (models.Todo, error) {
-	todo := models.Todo{Title: title, Status: status}
+// title string, status models.TodoStatus
+func (s *Service) CreateTodo(form types.TodoForm) (models.Todo, error) {
+	todo := models.Todo{Title: form.Title.Value, Status: models.TodoStatus(form.Status.Value)}
 	err := gorm.G[models.Todo](s.db).Create(s.context(), &todo)
 	return todo, err
 }
