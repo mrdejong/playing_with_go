@@ -122,8 +122,8 @@ templ TodoDrawer() {
 	}
 }
 
-templ TodoForm() {
-	<form id="todo-form" hx-post="/todos" hx-target="#tasks" hx-swap="beforeend" class="space-y-3" hx-on:htmx:after-request="this.reset(); document.getElementById('todo-form-drawer').dispatchEvent(new Event('close'))">
+templ TodoForm(form types.TodoForm) {
+	<form id="todo-form" hx-post="/todos" hx-target="#tasks" hx-swap="beforeend" class="space-y-3" hx-on:htmx:after-request="this.reset();">
 		@field.Field(field.Props{
 			Name:   "title",
 			Type:   input.TypeText,

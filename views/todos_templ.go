@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"awesome-go/internal/models"
+	"awesome-go/internal/types"
 	"awesome-go/views/components/button"
 	"awesome-go/views/components/card"
 	"awesome-go/views/components/drawer"
@@ -391,7 +392,7 @@ func TodoItem(todo models.Todo) templ.Component {
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(todo.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/todos.templ`, Line: 72, Col: 15}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/todos.templ`, Line: 73, Col: 15}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
@@ -422,7 +423,7 @@ func TodoItem(todo models.Todo) templ.Component {
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(todo.Status)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/todos.templ`, Line: 75, Col: 16}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/todos.templ`, Line: 76, Col: 16}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
@@ -471,7 +472,7 @@ func TodoItem(todo models.Todo) templ.Component {
 				templ_7745c5c3_Err = button.Button(button.Props{
 					Variant:    button.VariantDestructive,
 					Size:       button.SizeSm,
-					Attributes: HXAttributes(fmt.Sprintf("/todos/%x", todo.ID), "closest tr", "delete"),
+					Attributes: HXAttributes(fmt.Sprintf("/todos/%v", todo.ID), "closest tr", "delete"),
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -623,7 +624,7 @@ func TodoDrawer() templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = TodoForm().Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = TodoForm(types.TodoForm{}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -730,7 +731,7 @@ func TodoDrawer() templ.Component {
 	})
 }
 
-func TodoForm() templ.Component {
+func TodoForm(form types.TodoForm) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -751,15 +752,16 @@ func TodoForm() templ.Component {
 			templ_7745c5c3_Var32 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<form id=\"todo-form\" hx-post=\"/todos\" hx-target=\"#tasks\" hx-swap=\"beforeend\" class=\"space-y-3\" hx-on:htmx:after-request=\"this.reset(); document.getElementById('todo-form-drawer').dispatchEvent(new Event('close'))\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<form id=\"todo-form\" hx-post=\"/todos\" hx-target=\"#tasks\" hx-swap=\"beforeend\" class=\"space-y-3\" hx-on:htmx:after-request=\"this.reset();\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = field.Field(field.Props{
-			Name:  "title",
-			Type:  input.TypeText,
-			Label: "Title",
-			Value: "",
+			Name:   "title",
+			Type:   input.TypeText,
+			Label:  "Title",
+			Value:  form.Title.Value,
+			Errors: form.Title.Errors,
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -768,7 +770,8 @@ func TodoForm() templ.Component {
 			Name:     "status",
 			IsSelect: true,
 			Label:    "Status",
-			Value:    "",
+			Value:    form.Status.Value,
+			Errors:   form.Status.Errors,
 			SelectValues: map[string]string{
 				"open":        "Open",
 				"pending":     "Pending",
