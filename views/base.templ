@@ -1,5 +1,64 @@
 package views
 
+import (
+	"awesome-go/internal/models"
+	"awesome-go/internal/types"
+	"awesome-go/views/components/button"
+	"awesome-go/views/components/drawer"
+	"awesome-go/views/components/input"
+	"awesome-go/views/components/modal"
+	"awesome-go/views/components/popover"
+	"awesome-go/views/components/selectbox"
+	"context"
+)
+
+func User(ctx context.Context) models.User {
+	return ctx.Value(types.UserKey).(models.User)
+}
+
+func LoggedIn(ctx context.Context) bool {
+	return User(ctx).ID > 0
+}
+
+templ Link(href string) {
+	@button.Button(button.Props{
+		Href:    href,
+		Variant: button.VariantLink,
+	}) {
+		{ children... }
+	}
+}
+
+templ Navbar() {
+	<header class="w-full h-16 bg-gray-50 shadow border-b border-b-gray-300">
+		<div class="container mx-auto h-full flex items-center">
+			<a href="#">Hello world</a>
+			<div class="flex-grow flex justify-center">
+				if LoggedIn(ctx) {
+					@Link("/todos") {
+						Todos
+					}
+				}
+			</div>
+			if LoggedIn(ctx) {
+				// Render
+				@button.Button(button.Props{
+					Size:     button.SizeSm,
+					HXDelete: "/logout",
+				}) {
+					Logout
+				}
+			} else {
+				@button.Button(button.Props{
+					Size: button.SizeSm,
+				}) {
+					Login
+				}
+			}
+		</div>
+	</header>
+}
+
 templ Base() {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -12,6 +71,22 @@ templ Base() {
 		</head>
 		<body>
 			{ children... }
+			@popover.Script()
+			@modal.Script()
+			@drawer.Script()
+			@input.Script()
+			@selectbox.Script()
 		</body>
 	</html>
+}
+
+templ AppLayout() {
+	@Base() {
+		if LoggedIn(ctx) {
+			@Navbar()
+		}
+		<div class="container mx-auto mt-5">
+			{ children... }
+		</div>
+	}
 }

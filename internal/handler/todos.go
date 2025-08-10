@@ -2,9 +2,7 @@ package handler
 
 import (
 	"awesome-go/internal/models"
-	"awesome-go/internal/types"
 	"awesome-go/views"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -24,8 +22,6 @@ func (h *Handler) initializeTodos(router fiber.Router) {
 
 func (h *Handler) index(c *fiber.Ctx) error {
 	todos := h.service.ListTodos()
-	user := c.UserContext().Value(types.UserKey).(models.User)
-	fmt.Printf("User: %v", user)
 	return h.render(c, 200, views.Index(todos))
 }
 
@@ -53,5 +49,5 @@ func (h *Handler) delete(c *fiber.Ctx) error {
 		return err
 	}
 	h.service.DeleteTodo(idInt)
-	return c.SendString("ok")
+	return c.SendString("OK")
 }

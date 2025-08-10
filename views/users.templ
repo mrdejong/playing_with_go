@@ -3,6 +3,12 @@ package views
 import (
 	"awesome-go/internal/types"
 	"awesome-go/pkgs/validate"
+	"awesome-go/views/components/alert"
+	"awesome-go/views/components/button"
+	"awesome-go/views/components/card"
+	"awesome-go/views/components/icon"
+	"awesome-go/views/components/input"
+	"awesome-go/views/field"
 )
 
 templ FieldErr(errors validate.Errors) {
@@ -15,60 +21,113 @@ templ FieldErr(errors validate.Errors) {
 	}
 }
 
-templ RegistrationForm(fields types.UserForm) {
-	<form action="/register" method="post" novalidate>
-		<div>
-			<label for="name">Name:</label>
-			<input type="text" id="name" name="name" value={ fields.Name.Value }/>
-			@FieldErr(fields.Name.Errors)
-		</div>
-		<div>
-			<label for="email">Email:</label>
-			<input type="email" id="email" name="email" value={ fields.Email.Value }/>
-			@FieldErr(fields.Email.Errors)
-		</div>
-		<div>
-			<label for="password">Password:</label>
-			<input type="password" id="password" name="password" value={ fields.Password.Value }/>
-			@FieldErr(fields.Password.Errors)
-		</div>
-		<button type="submit">Register</button>
-	</form>
-}
-
-templ RegisterUser(fields types.UserForm) {
+templ authLayout() {
 	@Base() {
-		<div>
-			<h2>Register User</h2>
-			@RegistrationForm(fields)
+		<div class="device-content">
+			<div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+				{ children... }
+			</div>
 		</div>
 	}
 }
 
-templ LoginForm(fields types.AuthForm, message string) {
-	<form action="/login" method="post" novalidate>
-		if message != "" {
-			<div class="text-red-700">{ message }</div>
+templ RegistrationForm(fields types.UserForm) {
+	<form hx-post="/register" hx-swap="outerHTML" method="post" novalidate class="space-y-3">
+		@field.Field(field.Props{
+			Name:   "name",
+			Label:  "Name",
+			Value:  fields.Name.RawValue,
+			Type:   input.TypeText,
+			Errors: fields.Name.Errors,
+		})
+		@field.Field(field.Props{
+			Name:   "email",
+			Label:  "Email",
+			Value:  fields.Email.RawValue,
+			Type:   input.TypeEmail,
+			Errors: fields.Email.Errors,
+		})
+		@field.Field(field.Props{
+			Name:   "password",
+			Label:  "Password",
+			Value:  fields.Password.RawValue,
+			Type:   input.TypePassword,
+			Errors: fields.Password.Errors,
+		})
+		@button.Button(button.Props{
+			Type: button.TypeSubmit,
+		}) {
+			Register
 		}
-		<div>
-			<label for="email">Email:</label>
-			<input type="email" id="email" name="email" value={ fields.Email.Value }/>
-			@FieldErr(fields.Email.Errors)
-		</div>
-		<div>
-			<label for="password">Password:</label>
-			<input type="password" id="password" name="password" value={ fields.Password.Value }/>
-			@FieldErr(fields.Password.Errors)
-		</div>
-		<button type="submit">Register</button>
+	</form>
+}
+
+templ RegisterUser(fields types.UserForm) {
+	@authLayout() {
+		@card.Card(card.Props{
+			Class: "max-w-sm",
+		}) {
+			@card.Header() {
+				@card.Title() {
+					Register
+				}
+			}
+			@card.Content() {
+				@RegistrationForm(fields)
+			}
+		}
+	}
+}
+
+templ LoginForm(fields types.AuthForm, message string) {
+	<form action="/login" method="post" novalidate class="space-y-3">
+		if message != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@icon.TriangleAlert(icon.Props{Size: 16})
+				@alert.Title() {
+					Error
+				}
+				@alert.Description() {
+					{ message }
+				}
+			}
+		}
+		@field.Field(field.Props{
+			Name:   "email",
+			Label:  "Email",
+			Value:  fields.Email.RawValue,
+			Type:   input.TypeEmail,
+			Errors: fields.Email.Errors,
+		})
+		@field.Field(field.Props{
+			Name:   "password",
+			Label:  "Password",
+			Value:  fields.Password.RawValue,
+			Type:   input.TypePassword,
+			Errors: fields.Password.Errors,
+		})
+		@button.Button(button.Props{
+			Type:  button.TypeSubmit,
+			Class: "mt-3",
+		}) {
+			Login
+		}
 	</form>
 }
 
 templ LoginUser(fields types.AuthForm, message string) {
-	@Base() {
-		<div>
-			<h2>Login User</h2>
-			@LoginForm(fields, message)
-		</div>
+	@authLayout() {
+		@card.Card(card.Props{
+			Class: "max-w-sm",
+		}) {
+			@card.Header() {
+				@card.Title() {
+					Login
+				}
+			}
+			@card.Content() {
+				@LoginForm(fields, message)
+			}
+		}
 	}
 }

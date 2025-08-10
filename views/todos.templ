@@ -2,55 +2,153 @@ package views
 
 import (
 	"awesome-go/internal/models"
+	"awesome-go/views/components/button"
+	"awesome-go/views/components/card"
+	"awesome-go/views/components/drawer"
+	"awesome-go/views/components/input"
+	"awesome-go/views/components/table"
+	"awesome-go/views/field"
 	"fmt"
 )
 
 templ Index(todos []models.Todo) {
-	@Base() {
+	@AppLayout() {
 		<h1>Tasks</h1>
+		<div class="py-8">
+			@drawer.Trigger(drawer.TriggerProps{
+				For: "todo-form-drawer",
+			}) {
+				@button.Button(button.Props{
+					Variant: button.VariantOutline,
+				}) {
+					Add todo
+				}
+			}
+		</div>
 		@TodoList(todos)
-		@TodoForm()
+		@TodoDrawer()
 	}
 }
 
 templ TodoList(todos []models.Todo) {
-	<ul id="tasks">
-		for _, todo := range todos {
-			@TodoItem(todo)
+	@table.Table() {
+		@table.Caption() {
+			Todos
 		}
-	</ul>
+		@table.Header() {
+			@table.Row() {
+				@table.Head() {
+					Title
+				}
+				@table.Head() {
+					Status
+				}
+				@table.Head() {
+					Actions
+				}
+			}
+		}
+		@table.Body(table.BodyProps{
+			ID: "tasks",
+		}) {
+			for _, todo := range todos {
+				@TodoItem(todo)
+			}
+		}
+	}
+}
+
+func HXAttributes(url, target, swap string) templ.Attributes {
+	return templ.Attributes{
+		"hx-delete": url,
+		"hx-target": target,
+		"hx-swap":   swap,
+	}
 }
 
 templ TodoItem(todo models.Todo) {
-	<li>
-		{ todo.Title } - { todo.Status }
-		<button
-			hx-delete={ fmt.Sprintf("/todos/%x", todo.ID) }
-			hx-target="closest li"
-			hx-swap="outerHTML"
-		>
-			Delete
-		</button>
-	</li>
+	@table.Row() {
+		@table.Cell() {
+			{ todo.Title }
+		}
+		@table.Cell() {
+			{ todo.Status }
+		}
+		@table.Cell() {
+			@button.Button(button.Props{
+				Variant:    button.VariantDestructive,
+				Size:       button.SizeSm,
+				Attributes: HXAttributes(fmt.Sprintf("/todos/%x", todo.ID), "closest tr", "delete"),
+			}) {
+				Delete
+			}
+		}
+	}
+}
+
+templ TodoDrawer() {
+	@drawer.Content(drawer.ContentProps{
+		Position: drawer.PositionRight,
+		ID:       "todo-form-drawer",
+	}) {
+		@drawer.Header() {
+			@drawer.Title() {
+				New Todo
+			}
+			@drawer.Description() {
+				Here you can fill out the form and add a new todo item
+			}
+		}
+		@card.Card() {
+			@card.Content() {
+				<div class="flex flex-col gap-4">
+					@TodoForm()
+				</div>
+			}
+		}
+		@drawer.Footer() {
+			@drawer.Close() {
+				Cancel
+			}
+			@button.Button(button.Props{
+				Attributes: templ.Attributes{
+					"onclick": "document.getElementById('todo-store-button').click()",
+				},
+			}) {
+				Save
+			}
+		}
+	}
 }
 
 templ TodoForm() {
-	<form hx-post="/todos" hx-target="#tasks" hx-swap="beforeend" hx-on:htmx:after-request="this.reset()">
-		<div>
-			<input name="title"/>
-		</div>
-		<div>
-			<select name="status">
-				<option disabled>Please select a status</option>
-				<option value="open">Open</option>
-				<option value="pending">Pending</option>
-				<option value="in_progress">In Progress</option>
-				<option value="completed">Completed</option>
-				<option value="closed">Closed</option>
-			</select>
-		</div>
-		<div>
-			<button type="submit">Save</button>
+	<form id="todo-form" hx-post="/todos" hx-target="#tasks" hx-swap="beforeend" class="space-y-3" hx-on:htmx:after-request="this.reset(); document.getElementById('todo-form-drawer').dispatchEvent(new Event('close'))">
+		@field.Field(field.Props{
+			Name:  "title",
+			Type:  input.TypeText,
+			Label: "Title",
+			Value: "",
+		})
+		@field.Field(field.Props{
+			Name:     "status",
+			IsSelect: true,
+			Label:    "Status",
+			Value:    "",
+			SelectValues: map[string]string{
+				"open":        "Open",
+				"pending":     "Pending",
+				"in_progress": "In Progress",
+				"completed":   "Completed",
+				"closed":      "Closed",
+			},
+		})
+		<div class="hidden">
+			@button.Button(button.Props{
+				ID:   "todo-store-button",
+				Type: button.TypeSubmit,
+			}) {
+				Save
+			}
 		</div>
 	</form>
 }

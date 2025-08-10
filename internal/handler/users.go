@@ -3,6 +3,7 @@ package handler
 import (
 	"awesome-go/internal/types"
 	"awesome-go/views"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -16,6 +17,7 @@ func (h *Handler) initializeUsers(router fiber.Router) {
 
 	router.Get("login", h.getLogin)
 	router.Post("login", h.postLogin)
+	router.Delete("logout", h.deleteLogin)
 }
 
 func (h *Handler) getRegister(c *fiber.Ctx) error {
@@ -25,11 +27,11 @@ func (h *Handler) getRegister(c *fiber.Ctx) error {
 func (h *Handler) postRegister(c *fiber.Ctx) error {
 	var user types.UserForm
 	if invalid := h.app.ParseFields(&user, c.FormValue); invalid {
-		return h.render(c, http.StatusUnprocessableEntity, views.RegisterUser(user))
+		return h.render(c, http.StatusOK, views.RegistrationForm(user))
 	}
 	_, err := h.service.CreateUser(user)
 	if err != nil {
-		return h.render(c, http.StatusUnprocessableEntity, views.RegisterUser(user))
+		return h.render(c, http.StatusOK, views.RegistrationForm(user))
 	}
 	return h.redirect(c, "/login")
 }
@@ -74,4 +76,19 @@ func (h *Handler) postLogin(c *fiber.Ctx) error {
 	c.Cookie(cookie)
 
 	return h.redirect(c, "/")
+}
+
+func (h *Handler) deleteLogin(c *fiber.Ctx) error {
+	if h.authenticated(c) {
+		user := h.currentUser(c)
+		ip := c.IP()
+		agent := string(c.Request().Header.UserAgent())
+
+		session, err := h.service.GetSessionByMachineData(user.ID, ip, agent)
+		fmt.Printf("sess: %v & err: %v", session, err)
+		if err == nil {
+			h.service.DeleteSession(session.ID)
+		}
+	}
+	return h.redirect(c, "/login")
 }

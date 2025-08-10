@@ -2,9 +2,8 @@
 package utils
 
 import (
-	"fmt"
-
 	"crypto/rand"
+	"fmt"
 
 	"github.com/a-h/templ"
 

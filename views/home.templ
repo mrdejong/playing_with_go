@@ -1,21 +1,7 @@
 package views
 
-import (
-	"awesome-go/internal/models"
-	"awesome-go/internal/types"
-	"context"
-)
-
-func User(ctx context.Context) models.User {
-	return ctx.Value(types.UserKey).(models.User)
-}
-
-func LoggedIn(ctx context.Context) bool {
-	return User(ctx).ID > 0
-}
-
 templ HomeView() {
-	@Base() {
+	@AppLayout() {
 		<h1>Hello to home</h1>
 		if LoggedIn(ctx) {
 			<div>

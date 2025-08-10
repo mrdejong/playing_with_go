@@ -1,0 +1,71 @@
+package field
+
+import (
+	"awesome-go/pkgs/validate"
+	"awesome-go/views/components/form"
+	"awesome-go/views/components/input"
+	"awesome-go/views/components/selectbox"
+)
+
+type Props struct {
+	Name         string
+	Label        string
+	Value        string
+	IsSelect     bool
+	Type         input.Type
+	Errors       validate.Errors
+	SelectValues map[string]string
+}
+
+templ Field(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	if p.IsSelect {
+		@selectbox.SelectBox() {
+			@selectbox.Trigger(selectbox.TriggerProps{
+				Name: p.Name,
+			}) {
+				@selectbox.Value(selectbox.ValueProps{
+					Placeholder: "Please select",
+				})
+			}
+			@selectbox.Content() {
+				@selectbox.Label() {
+					{ p.Label }
+				}
+				for k, v := range p.SelectValues {
+					@selectbox.Item(selectbox.ItemProps{
+						Value:    k,
+						Selected: k == p.Value,
+					}) {
+						{ v }
+					}
+				}
+			}
+		}
+	} else {
+		@form.Item() {
+			@form.Label(form.LabelProps{
+				For: p.Name,
+			}) {
+				{ p.Label }
+			}
+			@input.Input(input.Props{
+				ID:       p.Name,
+				Name:     p.Name,
+				Type:     p.Type,
+				Value:    p.Value,
+				HasError: p.Errors.Any(),
+			})
+			if p.Errors.Any() {
+				@form.Message(form.MessageProps{
+					Variant: form.MessageVariantError,
+				}) {
+					{ p.Errors[0] }
+				}
+			}
+		}
+	}
+}

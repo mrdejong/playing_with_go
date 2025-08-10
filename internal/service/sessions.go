@@ -38,3 +38,15 @@ func (s *Service) GetSessionByToken(token string) (models.Session, error) {
 	}
 	return session, nil
 }
+
+func (s *Service) GetSessionByMachineData(userId uint, ip, userAgent string) (models.Session, error) {
+	session, err := gorm.G[models.Session](s.db).Where("user_id = ? AND user_agent = ? AND ip = ?", userId, userAgent, ip).Last(s.context())
+	if err != nil {
+		return models.Session{}, err
+	}
+	return session, nil
+}
+
+func (s *Service) DeleteSession(id uint) {
+	gorm.G[models.Session](s.db).Where("id = ?", id).Delete(s.context())
+}
